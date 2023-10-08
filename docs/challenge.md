@@ -26,3 +26,4 @@ The test test_model_predict appears to be ill-conceived; it asks for a predictio
 
 get_min_diff shows that sometimes, flights leave before their departure time. Not a delay, but certainly interesting. I've set up a warning to be logged if we see a plane leaving an hour or more prior to its departure time. That case would deserve some further study.
 
+The type hint for preprocess needs to use square brackets to work, so it now looks like Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]

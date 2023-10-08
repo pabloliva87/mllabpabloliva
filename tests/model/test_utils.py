@@ -20,6 +20,6 @@ class TestModel(unittest.TestCase):
         min_diff_equals = get_min_diff(test_raw_data_equals)
         self.assertEqual(min_diff_equals, 0.0)
 
-        test_raw_data_after = {'Fecha-I': '2017-01-01 7:30:00', 'Fecha-O': '2017-01-01 6:30:00'}
+        test_raw_data_after = {'Fecha-I': '2017-01-01 7:30:00', 'Fecha-O': '2017-01-01 5:15:00'}
         min_diff_after = get_min_diff(test_raw_data_after)
-        self.assertEqual(min_diff_after, -60.0)
+        self.assertEqual(min_diff_after, -135.0)
