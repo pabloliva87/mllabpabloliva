@@ -16,3 +16,13 @@ Modified requirements.txt to comply with that requirement. If this wasn't meant 
  * We are looking for a proper `CI/CD` implementation for this development.
 
 We'll create a feature branch for each, and update develop when done.
+
+3. Operationalize the model
+We'll pick XG Boost with top10 features and class balancing, because its f1-score for delays is marginally better (0.37 vs 0.36 of Regression). In reality, going with either one could be defensible at this stage from a precission point of view.
+
+Tests are failing due to the path to data being invalid. The long term solution is to set an env variable and use that for the tests to locate their data. For now, we'll use a hardcoded path as default.
+
+The test test_model_predict appears to be ill-conceived; it asks for a prediction without having called fit first. It was reworked to do that crucial step first, but keeping all the original assertions.
+
+get_min_diff shows that sometimes, flights leave before their departure time. Not a delay, but certainly interesting. I've set up a warning to be logged if we see a plane leaving an hour or more prior to its departure time. That case would deserve some further study.
+

@@ -1,4 +1,6 @@
 import unittest
+import logging
+import os
 import pandas as pd
 
 from sklearn.metrics import classification_report
@@ -24,12 +26,16 @@ class TestModel(unittest.TestCase):
         "delay"
     ]
 
+    DEFAULT_REPO_ROOT = "/home/pablo/Documents/latamLab/mllabpabloliva/"
+
 
     def setUp(self) -> None:
         super().setUp()
         self.model = DelayModel()
-        self.data = pd.read_csv(filepath_or_buffer="../data/data.csv")
-        
+        root_path = os.environ.get("REPO_ROOT", TestModel.DEFAULT_REPO_ROOT)
+        data_location = os.path.join(root_path, "data/data.csv")
+        assert os.path.exists(data_location)
+        self.data = pd.read_csv(filepath_or_buffer=data_location, low_memory=False)
 
     def test_model_preprocess_for_training(
         self
@@ -47,7 +53,6 @@ class TestModel(unittest.TestCase):
         assert target.shape[1] == len(self.TARGET_COL)
         assert set(target.columns) == set(self.TARGET_COL)
 
-
     def test_model_preprocess_for_serving(
         self
     ):
@@ -58,7 +63,6 @@ class TestModel(unittest.TestCase):
         assert isinstance(features, pd.DataFrame)
         assert features.shape[1] == len(self.FEATURES_COLS)
         assert set(features.columns) == set(self.FEATURES_COLS)
-
 
     def test_model_fit(
         self
@@ -85,19 +89,49 @@ class TestModel(unittest.TestCase):
         assert report["0"]["f1-score"] < 0.70
         assert report["1"]["recall"] > 0.60
         assert report["1"]["f1-score"] > 0.30
-
+        """
+        with open('/home/pablo/Documents/latamLab/mllabpabloliva/report.txt', 'w+') as reportFile:
+            reportFile.write(str(report))
+            reportFile.write('\n')
+            reportFile.write(str(self.model._model))
+            reportFile.write('\n')
+            reportFile.write(str(self.model._model.scale_pos_weight))
+            reportFile.write('\n')
+        #print(report)
+        #logging.warning("recall " + str(report["0"]["recall"]))
+        #logging.warning("f1-score " + str(report["0"]["f1-score"]))
+        #logging.warning("recall " + str(report["1"]["recall"]))
+        #logging.warning("f1-score " + str(report["1"]["f1-score"]))
+        """
 
     def test_model_predict(
         self
     ):
-        features = self.model.preprocess(
-            data=self.data
+        features, target = self.model.preprocess(
+            data=self.data,
+            target_column="delay"
+        )
+
+        training_testing_split = train_test_split(features, target, test_size = 0.33, random_state = 42)
+        features_training = training_testing_split[0]
+        features_validation = training_testing_split[1]
+        target_training = training_testing_split[2]
+        target_validation = training_testing_split[3]
+
+        self.model.fit(
+            features=features_training,
+            target=target_training
         )
 
         predicted_targets = self.model.predict(
-            features=features
+            features=features_validation
         )
 
         assert isinstance(predicted_targets, list)
-        assert len(predicted_targets) == features.shape[0]
+        assert len(predicted_targets) == features_validation.shape[0]
         assert all(isinstance(predicted_target, int) for predicted_target in predicted_targets)
+
+    def test_model_constructor(
+        self
+    ):
+        self.assertTrue(self.model is not None)
