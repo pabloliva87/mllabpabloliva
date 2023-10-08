@@ -6,7 +6,8 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
-from challenge.utils import get_min_diff
+from challenge.utils import get_dummy_representation, get_min_diff, reduce_features
+#from utils import get_dummy_representation, get_min_diff, reduce_features
 from typing import Tuple, Union, List
 
 class DelayModel:
@@ -54,24 +55,17 @@ class DelayModel:
             or
             pd.DataFrame: features.
         """
-        data['min_diff'] = data.apply(get_min_diff, axis = 1)
+        data['min_diff'] = data.apply(get_min_diff, axis=1)
         data['delay'] = numpy.where(data['min_diff'] > DelayModel.Delay_Threshold, 1, 0)
         logging.info("Processing data with %d rows, %d columns",
                      len(data), len(data.columns))
 
-        features = pd.concat([
-            pd.get_dummies(data['OPERA'], prefix = 'OPERA'),
-            pd.get_dummies(data['TIPOVUELO'], prefix = 'TIPOVUELO'),
-            pd.get_dummies(data['MES'], prefix = 'MES')],
-            axis = 1
-        )
-        reduced_features = features[DelayModel.Top_10_Features]
-        logging.debug("Reduced features to keep only %s",
-                      str(DelayModel.Top_10_Features))
+        features = get_dummy_representation(data)
+        features = reduce_features(features, DelayModel.Top_10_Features)
         if target_column:
             target = pd.DataFrame(data['delay'])
-            return reduced_features, target
-        return reduced_features
+            return features, target
+        return features
 
     def fit(
         self,

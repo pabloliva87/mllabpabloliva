@@ -27,3 +27,16 @@ The test test_model_predict appears to be ill-conceived; it asks for a predictio
 get_min_diff shows that sometimes, flights leave before their departure time. Not a delay, but certainly interesting. I've set up a warning to be logged if we see a plane leaving an hour or more prior to its departure time. That case would deserve some further study.
 
 The type hint for preprocess needs to use square brackets to work, so it now looks like Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]
+
+4. Deploy the model
+
+Run API by doing
+uvicorn challenge.api:app --reload
+
+We'll use a local install of Postman to test the first requests.
+
+It turns out that we need the code that converts data into dummies twice; once for preprocessing and in the api, to transform the received input. We'll modularize it to utils.
+
+The above turned out to be a bit more complicated: for training, we need to get the dummies and reduce them to the subset the model expects; for processing, we need to get the dummies, add the columns the module expects if any are missing, and remove the ones the modules does not expect if any are present. Utils and its tests have grown a bit because of these requirements.
+
+

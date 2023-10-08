@@ -89,20 +89,6 @@ class TestModel(unittest.TestCase):
         assert report["0"]["f1-score"] < 0.70
         assert report["1"]["recall"] > 0.60
         assert report["1"]["f1-score"] > 0.30
-        """
-        with open('/home/pablo/Documents/latamLab/mllabpabloliva/report.txt', 'w+') as reportFile:
-            reportFile.write(str(report))
-            reportFile.write('\n')
-            reportFile.write(str(self.model._model))
-            reportFile.write('\n')
-            reportFile.write(str(self.model._model.scale_pos_weight))
-            reportFile.write('\n')
-        #print(report)
-        #logging.warning("recall " + str(report["0"]["recall"]))
-        #logging.warning("f1-score " + str(report["0"]["f1-score"]))
-        #logging.warning("recall " + str(report["1"]["recall"]))
-        #logging.warning("f1-score " + str(report["1"]["f1-score"]))
-        """
 
     def test_model_predict(
         self
