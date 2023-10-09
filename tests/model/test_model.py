@@ -121,3 +121,41 @@ class TestModel(unittest.TestCase):
         self
     ):
         self.assertTrue(self.model is not None)
+
+    def test_validate_input(
+        self
+    ):
+        valid_data_raw = {"OPERA": {0: "Aerolineas Argentinas"},
+                          "TIPOVUELO": {0: "N"},
+                          "MES": {0: 3}
+                          }
+        valid_data = pd.DataFrame(valid_data_raw)
+        self.assertTrue(self.model.validate_input(valid_data))
+
+        invalid_operator_raw = {"OPERA": {0: ""},
+                                "TIPOVUELO": {0: "N"},
+                                "MES": {0: 3}
+                                }
+        invalid_operator_data = pd.DataFrame(invalid_operator_raw)
+        self.assertFalse(self.model.validate_input(invalid_operator_data))
+
+        invalid_flight_type_raw = {"OPERA": {0: "LATAM"},
+                                   "TIPOVUELO": {0: "O"},
+                                   "MES": {0: 3}
+                                   }
+        invalid_flight_type_data = pd.DataFrame(invalid_flight_type_raw)
+        self.assertFalse(self.model.validate_input(invalid_flight_type_data))
+
+        invalid_month_high_raw = {"OPERA": {0: "LATAM"},
+                             "TIPOVUELO": {0: "I"},
+                             "MES": {0: 14}
+                             }
+        invalid_month_high_data = pd.DataFrame(invalid_month_high_raw)
+        self.assertFalse(self.model.validate_input(invalid_month_high_data))
+
+        invalid_month_low_raw = {"OPERA": {0: "LATAM"},
+                             "TIPOVUELO": {0: "I"},
+                             "MES": {0: 0}
+                             }
+        invalid_month_low_data = pd.DataFrame(invalid_month_low_raw)
+        self.assertFalse(self.model.validate_input(invalid_month_low_data))

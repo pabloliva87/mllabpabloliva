@@ -4,11 +4,10 @@ import pandas as pd
 import xgboost as xgb
 
 from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
+from typing import Tuple, Union, List
 
 from challenge.utils import get_dummy_representation, get_min_diff, reduce_features
-#from utils import get_dummy_representation, get_min_diff, reduce_features
-from typing import Tuple, Union, List
+
 
 class DelayModel:
     Delay_Threshold = 15
@@ -112,3 +111,38 @@ class DelayModel:
         result = [int(x) for x in prediction]
 
         return result
+
+    @staticmethod
+    def validate_input(data):
+        """
+            Checks that the dataframe being received is a reasonable prediction request
+
+            Args:
+                data (pd.DataFrame): raw data.
+
+            Returns:
+                bool: True if the input can be used to predict delays, False otherwise
+        """
+        airline_operators = [x for x in data['OPERA'].unique()]
+        for operator in airline_operators:
+            if not operator:
+                logging.error("Found invalid operator: %s; aborting", operator)
+                return False
+
+        flight_types = [x for x in data['TIPOVUELO'].unique()]
+        for flight_type in flight_types:
+            if flight_type != 'I' and flight_type != 'N':
+                logging.error("Found invalid flight type: %s; aborting", flight_type)
+                return False
+
+        min_month = data['MES'].min()
+        if min_month < 1:
+            logging.error("Found invalid month: %d; aborting", min_month)
+            return False
+
+        max_month = data['MES'].max()
+        if max_month > 12:
+            logging.error("Found invalid month: %d; aborting", max_month)
+            return False
+
+        return True

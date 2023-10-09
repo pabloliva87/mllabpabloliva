@@ -76,4 +76,3 @@ def reduce_features(features, columns_to_keep):
                   str(columns_to_keep))
 
     return reduced_features
-
